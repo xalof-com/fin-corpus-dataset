@@ -22,7 +22,7 @@ Là các file chứa dữ liệu gồm các câu, mỗi câu là một dòng đ�
 * `fin_doanh-nghiep_599138_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo thuộc section `Doanh Nghiệp`
 * `fin_all_2393341_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo của 4 section trên
 
-Cấu trức tên file: fin_{section}_{number-of-sentences}_sentences.txt.zip
+Cấu trúc tên file: fin_{section}_{number-of-sentences}_sentences.txt.zip
 
 
 # Corpus
