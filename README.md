@@ -30,7 +30,7 @@ Bao gồm 2 file chứa trong thư mục `corpus` (mình tạo sẳn để dùng
 
 [Download tại: https://drive.google.com/drive/folders/1pndKI3wCjjmZkxlnmOdcbAUxRbTlpIBe?usp=sharing]
 
-* `fin_all_word_tokenized_sencentences.txt.zip`: mỗi dòng của file này là một json string như sau:
+* `fin_all_word_tokenized_sencentences.txt.zip`: bao gồm `2.393.341` dòng. Mỗi dòng của file này là một json string như sau:
 
 <pre>
 {"sentence": ["Chứng khoán", "VNDirect", "đi", "vay", "10.000", "tỷ", "đồng", "."], "word_count": 8}
@@ -41,7 +41,7 @@ Bao gồm 2 file chứa trong thư mục `corpus` (mình tạo sẳn để dùng
 ...
 </pre>
 
-* `fin_all_vocab.json.zip`: là file chứa tất cả các từ (unique) được tổng hợp từ file `fin_all_word_tokenized_sencentences.txt`, có dạng:
+* `fin_all_vocab.json.zip`: là file chứa tất cả các từ (unique) được tổng hợp từ file `fin_all_word_tokenized_sencentences.txt`, bao gồm `422.539` từ, có dạng:
 
 <pre>
 {
