@@ -1,7 +1,7 @@
 import database, model
 from sqlalchemy import select, func
 import pprint
-from underthesea import word_tokenize, sent_tokenize
+from underthesea import sent_tokenize
 import os, string, json
 from tqdm import tqdm
 import zipfile
@@ -23,12 +23,15 @@ def create_sentences_from_articles(
     if source_name != None:
         stmt = stmt.where(model.ArticleModel.source_name.in_(source_name))
         stmt_count = stmt_count.where(model.ArticleModel.source_name.in_(source_name))
+    
     if sections != None:
         stmt = stmt.where(model.ArticleModel.section.in_(sections))
         stmt_count = stmt_count.where(model.ArticleModel.section.in_(sections))
+    else:
+        stmt = stmt.order_by(model.ArticleModel.section)
+        # stmt_count = stmt_count.order_by(func.random())
+    
     if n_limit != None:
-        stmt = stmt.order_by(func.random())
-        stmt_count = stmt_count.order_by(func.random())
         stmt = stmt.limit(n_limit)
         stmt_count = stmt_count.limit(n_limit)
    
@@ -70,10 +73,41 @@ def create_sentences_from_articles(
     print('Finished!')
 
     if zip_it == True:
-        print(f"{count_sentences} sentences have been created. Stored at: {txt_file} | {zip_file}")
+        print(f"{count_sentences} sentences have been created.\n Saved at: {txt_file} | {zip_file}")
     else:
-        print(f"{count_sentences} sentences have been created. Stored at: {txt_file}")
+        print(f"{count_sentences} sentences have been created.\n Saved at: {txt_file}")
     
+    return count_sentences
+
+def extract_sentences_from_file(files:list, output_file:str, zip_it:bool=True) -> int:
+    
+    count_sentences = 0
+    with open(output_file, mode='w', encoding='utf-8') as f_out:
+        for file_name, total_rows in tqdm(files):
+            with open(file_name, mode='r', encoding='utf-8') as f_in:
+                k_rows = 0
+                sentences = []
+                for line in f_in:
+                    if k_rows >= total_rows:
+                        break
+                    sentences.append(f"{line.strip()}\n")
+                    k_rows += 1
+
+                f_out.writelines(sentences)
+                count_sentences += len(sentences)
+
+                f_in.close()
+        f_out.close()
+
+    if zip_it == True:
+        zip_file = f"{output_file}.zip"
+        _create_zipfile(input_file=output_file, output_file=zip_file)
+
+    if zip_it == True:
+        print(f"{count_sentences} sentences have been created.\n Saved at: {output_file} | {zip_file}")
+    else:
+        print(f"{count_sentences} sentences have been created.\n Saved at: {output_file}")
+
     return count_sentences
 
 def _create_zipfile(input_file:str, output_file:str) -> bool:
@@ -94,37 +128,71 @@ def _create_sentences(article:model.ArticleModel) -> list:
     sentences = []
    
     tmp = [
-        _replace_ending_paragragh(article.title),
-        _replace_ending_paragragh(article.intro)
+        _clean_paragragh(article.title),
+        _clean_paragragh(article.intro)
     ]
     if article.content != '':
         for p in article.content.split("\n"):
-            tmp.append(_replace_ending_paragragh(p))
+            tmp.append(_clean_paragragh(p))
 
     sentences = sent_tokenize(" ".join(tmp))   
 
     return sentences
 
-def _replace_ending_paragragh(txt:str) -> str:
-    patterns = {
-        '?.': '?',
-        '!.': '!',
-        '...': '.',
-        '....': '.'
+def _clean_paragragh(txt:str) -> str:
+    ending_patterns = {
+        '?.': '? ',
+        '!.': '! ',
+        ':.': '.'
     }
-
-    for k, v in patterns.items():
+    for k, v in ending_patterns.items():
         if txt.endswith(k):
             txt = txt.replace(k, v)
             break
+
+    special_pattern = {
+        '...': '. ',
+        '...v.v.': '. ',
+        '... v.v': '. ',
+        'v.v.': '. ',
+        'v.v': '. ',
+        '..': '. ',
+        '....': '. ',        
+        '(i)': '',
+        '(ii)': '',
+        '(iii)': '',
+        '(iv)': '',
+        '(v)': '',
+        '(vi)': '',
+        '(vii)': '',
+        '(viii)': '',
+        '(ix)': '',
+        '(x)': ''
+    }
+    for k, v in special_pattern.items():
+        txt = txt.replace(k, v)
+
     return txt
 
 
 
 if __name__ == "__main__":
-    output_file = "dataset/fin_{0}_sentences.txt"
-    count = create_sentences_from_articles(output_file,
-                                           source_name=['cafef.vn'],
-                                           max_row_buffer=2000, 
-                                           sections=['doanh-nghiep'])
-    
+
+    total = (100 * 1000) + 1000
+    num_per_section = total // 4
+
+    output_file = f"dataset/fin_all_small_{total}_sentences.txt"
+
+    # count = create_sentences_from_articles(output_file,
+    #                                     source_name=['cafef.vn'],
+    #                                     max_row_buffer=2000, 
+    #                                     sections=None)
+
+    files = [
+        ("dataset/fin_bat-dong-san_sentences.txt", num_per_section),
+        ("dataset/fin_tai-chinh_sentences.txt", num_per_section),
+        ("dataset/fin_chung-khoan_sentences.txt", num_per_section),
+        ("dataset/fin_doanh-nghiep_sentences.txt", num_per_section)
+    ]
+    count = extract_sentences_from_file(files, output_file)
+        

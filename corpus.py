@@ -25,7 +25,7 @@ def get_stopwords(input_file:str) -> list:
         stopwords = [line.strip() for line in f]
     return stopwords
 
-def _sentence_to_words(sentence:str, list_stopwords:list=None) -> list:
+def _sentence_to_words(sentence:str, lower_case:bool=True, list_stopwords:list=None) -> list:
     """
     Separate the sentence into words apart.
 
@@ -37,30 +37,33 @@ def _sentence_to_words(sentence:str, list_stopwords:list=None) -> list:
         words: the list of words apart.
     """
     words = []
-    replaces = ['.', ',', '!', '?', ':', '-']
+    replaces = ['.', ',', '!', '?', '-', '%', ':', '/']
     punctuation = string.punctuation
     for r in replaces:
         punctuation = punctuation.replace(r, '')
+    
+    punctuation = list(punctuation)
+    punctuation.extend(['...', '..', '....'])
 
-    if isinstance(list_stopwords, list):
-        if len(list_stopwords) == 0:
-            for word in word_tokenize(sentence):
-                if word in punctuation:
-                    continue
-                words.append(word)
-        else:
-            for word in word_tokenize(sentence):
-                if word in punctuation or word in list_stopwords:
-                    continue
-                words.append(word)
+    if lower_case == True:
+        sentence = sentence.lower()
+    
+    if list_stopwords == None or (isinstance(list_stopwords, list) and len(list_stopwords) == 0):
+        for r in punctuation:
+            sentence = sentence.replace(r, '')
+        words = word_tokenize(sentence)
+        
     else:
+        for r in punctuation:
+            sentence = sentence.replace(r, '')
+
         for word in word_tokenize(sentence):
-            if word in punctuation:
-                continue
-            words.append(word)
+            if word not in list_stopwords:
+                words.append(word)
+
     return words
 
-def create_word_tokenized_sentences(input_file:str, output_file:str, list_stopwords:list=None, max_buffer_size:int=32) -> int:
+def create_word_tokenized_sentences(input_file:str, output_file:str, list_stopwords:list=None, min_seq_len:int=5, max_buffer_size:int=32) -> int:
     """
     Create the sentence from raw text to list of word tokenized and word_count. Then save them to file.
 
@@ -94,17 +97,18 @@ def create_word_tokenized_sentences(input_file:str, output_file:str, list_stopwo
                     if line.strip() == '':
                         continue
 
-                    word_tokens = _sentence_to_words(line.strip(), list_stopwords)
-                    sent_dict = {
-                        'sentence': word_tokens,
-                        'word_count': len(word_tokens)
-                    }
-                    str_json = json.dumps(sent_dict, ensure_ascii=False).encode('utf-8')
-                    tmp.append(str_json.decode())                
-                    sentence_count += 1
-                    
-                payload = "\n".join(tmp)
-                f_tokens.write(f"{payload}\n")
+                    word_tokens = _sentence_to_words(line.strip(), lower_case=True, list_stopwords=list_stopwords)
+                    word_count = len(word_tokens)
+                    if (word_count - 1) > min_seq_len:
+                        sent_dict = {
+                            'sentence': word_tokens,
+                            'word_count': word_count
+                        }
+                        str_json = json.dumps(sent_dict, ensure_ascii=False).encode('utf-8')
+                        tmp.append(f"{str_json.decode()}\n")                
+                        sentence_count += 1
+                
+                f_tokens.writelines(tmp)
                 k += 1
             f_ds.close()
         f_tokens.close()
@@ -205,16 +209,16 @@ if __name__ == "__main__":
     dataset_dir = 'dataset'
     stopwords_dir = "stopwords"
 
-    section = 'all'
+    section = 'all_small'
     dataset_file = f"{dataset_dir}/fin_{section}_sentences.txt"
     word_tokenized_file = f"{corpus_dir}/fin_{section}_word_tokenized_sentences.txt"
     stopwords_file = f"{stopwords_dir}/vietnamese-stopwords.txt"
 
     vocab_file = f"{corpus_dir}/fin_{section}_vocab.json"
 
-    list_stopwords = get_stopwords(stopwords_file)
-    sent_count = create_word_tokenized_sentences(dataset_file, word_tokenized_file, max_buffer_size=16)
-    print(f"Sentence: {sent_count}")
+    # list_stopwords = get_stopwords(stopwords_file)
+    # sent_count = create_word_tokenized_sentences(dataset_file, word_tokenized_file, max_buffer_size=32)
+    # print(f"Sentence: {sent_count}")
 
     print(f"\nCreate vocab from file: {word_tokenized_file}")
     word_tokens, max_seq_len = create_unique_word_tokens(word_tokenized_file, max_buffer_size=32)

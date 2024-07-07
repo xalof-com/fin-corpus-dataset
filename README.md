@@ -16,11 +16,11 @@ Là các file chứa dữ liệu gồm các câu, mỗi câu là một dòng đ�
 
 [Download tại: https://drive.google.com/drive/folders/1pndKI3wCjjmZkxlnmOdcbAUxRbTlpIBe?usp=sharing]
 
-* `fin_tai-chinh_479976_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo thuộc section `Tài Chính`
-* `fin_chung-khoan_488480_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo thuộc section `Chứng Khoán`
-* `fin_bat-dong-san_825747_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo thuộc section `Bất Động Sản`
-* `fin_doanh-nghiep_599138_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo thuộc section `Doanh Nghiệp`
-* `fin_all_2393341_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo của 4 section trên
+* `fin_tai-chinh_544014_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo thuộc section `Tài Chính`
+* `fin_chung-khoan_539522_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo thuộc section `Chứng Khoán`
+* `fin_bat-dong-san_952826_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo thuộc section `Bất Động Sản`
+* `fin_doanh-nghiep_681408_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo thuộc section `Doanh Nghiệp`
+* `fin_all_2717770_sentences.txt.zip`: tất cả các câu trong tất cả các bài báo của 4 section trên
 
 Cấu trúc tên file: fin_{section}_{number-of-sentences}_sentences.txt.zip
 
@@ -30,7 +30,7 @@ Bao gồm 2 file chứa trong thư mục `corpus` (mình tạo sẳn để dùng
 
 [Download tại: https://drive.google.com/drive/folders/1pndKI3wCjjmZkxlnmOdcbAUxRbTlpIBe?usp=sharing]
 
-* `fin_all_word_tokenized_sencentences.txt.zip`: bao gồm `2.393.341` dòng. Mỗi dòng của file này là một json string như sau:
+* `fin_all_word_tokenized_sencentences.txt.zip`: bao gồm `2.717.770` dòng. Mỗi dòng của file này là một json string như sau:
 
 <pre>
 {"sentence": ["Chứng khoán", "VNDirect", "đi", "vay", "10.000", "tỷ", "đồng", "."], "word_count": 8}
